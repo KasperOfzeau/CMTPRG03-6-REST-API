@@ -1,16 +1,18 @@
-console.log("Hello World!")
+require('dotenv').config();
 
 const { response } = require("express");
-let express = require("express");
+const express = require("express");
+const app = express();
+const mongoose = require('mongoose');
 
-let app = express();
+mongoose.connect(process.env.DATABASE_URL, {useNewUrlParser: true});
+const db = mongoose.connection;
+db.on('error', (error) => console.error(error));
+db.on('open', () => console.log("Connected to database"));
 
-app.get("/", (request, response) => {
-    response.send('<h1>Hello World!</h1><form action="/" method="post"><input type="text"><input type="submit" value="submit"></form>');
-})
+app.use(express.json());
 
-app.post("/", (request, response) => {
-    response.send('<h1>Hello World!</h1><form action="/" method="post"><input type="text"><input type="submit" value="submit"></form><p>Formuleer verzonden</p>');
-})
+const photosRouter = require('./routes/photos');
+app.use('/photos', photosRouter);
 
 app.listen(8080);
