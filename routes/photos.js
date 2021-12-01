@@ -3,42 +3,67 @@ const router = express.Router();
 const Photo = require('../models/photos');
 
 //Getting all 
-router.get('/', async (req, res) => {
+router.get('/photos', async (req, res) => {
     try {
         const photos = await Photo.find();
-        res.json(photos);
+        let photosCollection = {
+            "items": [],
+            "_links": {
+                "self": { "href": "http://145.24.222.98:8080/api/photos" },
+                "collection": { "href": "http://145.24.222.98:8080/api/photos" }
+            },
+            "pagination": { "message": "nog te doen" }
+        }
+        for (let photo of photos) {
+            let photoItem = photo.toJSON();
+            photoItem._links = {
+                "self": { "href": "http://145.24.222.98:8080/api/photos/" + photoItem._id },
+                "collection": { "href": "http://145.24.222.98:8080/api/photos" }
+            };
+            photosCollection.items.push(photoItem);
+        }
+        res.json(photosCollection);
     } catch (err) {
-        res.status(500).json({ message: err.message});
+        res.status(500).json({ message: err.message });
     }
 });
+//Gettubg options
+router.options('/photos', (req, res) => {
+    res.header("Allow", "GET,POST,OPTIONS").send();
+});
 //Getting one
-router.get('/:id', getPhoto, (req, res) => {
-    res.json(res.photo);
+router.get('/photos/:id', getPhoto, (req, res) => {
+    let photo = res.photo;
+    let photoItem = photo.toJSON();
+    photoItem._links = {
+        "self": { "href": "http://145.24.222.98:8080/api/photos/" + photoItem._id },
+        "collection": { "href": "http://145.24.222.98:8080/api/photos" }
+    };
+    res.json(photoItem);
 });
 //Creating one
-router.post('/', async (req, res) => {
+router.post('/photos', async (req, res) => {
     const photo = new Photo({
         title: req.body.title,
         image: req.body.image,
         category: req.body.category
-    })
-
+    });
     try {
         const newPhoto = await photo.save();
         res.status(201).json(newPhoto);
     } catch (err) {
-        res.status(400).json({ message: err.message});
+        res.status(400).json({ message: err.message });
     }
 });
 //Updating one
-router.patch('/:id', getPhoto, async (req, res) => {
-    if(req.body.title != null) {
+router.patch('/photos/:id', getPhoto, async (req, res) => {
+    if (req.body.title != null) {
         res.photo.title = req.body.title;
     }
-    if(req.body.image != null) {
+    if (req.body.image != null) {
         res.photo.image = req.body.image;
     }
-    if(req.body.category != null) {
+    if (req.body.category != null) {
         res.photo.category = req.body.category;
     }
 
@@ -50,24 +75,29 @@ router.patch('/:id', getPhoto, async (req, res) => {
     }
 });
 //Deleting one
-router.delete('/:id', getPhoto, async (req, res) => {
+router.delete('/photos/:id', getPhoto, async (req, res) => {
     try {
         await res.photo.remove();
-        res.json({ message: "Deleted photo"});
+        res.json({ message: "Deleted photo" });
     } catch (err) {
-        res.status(400).json({ message: err.message});
+        res.status(400).json({ message: err.message });
     }
+});
+
+//Gettubg options
+router.options('/photos/:id', (req, res) => {
+    res.header("Allow", "GET,POST,PATCH,DELETE,OPTIONS").send();
 });
 
 async function getPhoto(req, res, next) {
     let photo;
     try {
         photo = await Photo.findById(req.params.id);
-        if(photo == null) {
-            return res.status(404).json({ message: "Cannot find photo"});
+        if (photo == null) {
+            return res.status(404).json({ message: "Cannot find photo" });
         }
     } catch (err) {
-        return res.status(500).json({ message: err.message});
+        return res.status(500).json({ message: err.message });
     }
 
     res.photo = photo;
