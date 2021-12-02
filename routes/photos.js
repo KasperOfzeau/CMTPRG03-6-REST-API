@@ -2,6 +2,15 @@ const express = require("express");
 const router = express.Router();
 const Photo = require('../models/photos');
 
+router.use('/', function (req, res, next) {
+    let acceptType = req.get('Accept');
+    if(acceptType == "application/json") {
+        next();
+    } else {
+        res.status(400).send();
+    }
+});
+
 //Getting all 
 router.get('/photos', async (req, res) => {
     try {
