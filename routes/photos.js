@@ -13,6 +13,7 @@ router.use('/', function (req, res, next) {
 
 //Getting all 
 router.get('/photos', async (req, res) => {
+    
     try {
         const photos = await Photo.find();
         let photosCollection = {
@@ -38,7 +39,8 @@ router.get('/photos', async (req, res) => {
 });
 //Gettubg options
 router.options('/photos', (req, res) => {
-    res.header("Allow", "GET,POST,OPTIONS").send();
+    res.header("Allow", "GET,POST,OPTIONS");
+    res.header("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
 });
 //Getting one
 router.get('/photos/:id', getPhoto, (req, res) => {
@@ -95,7 +97,8 @@ router.delete('/photos/:id', getPhoto, async (req, res) => {
 
 //Gettubg options
 router.options('/photos/:id', (req, res) => {
-    res.header("Allow", "GET,POST,PATCH,DELETE,OPTIONS").send();
+    res.header("Allow", "GET,POST,PATCH,DELETE,OPTIONS");
+    res.header("Access-Control-Allow-Methods", "GET,POST,PATCH,DELETE,OPTIONS");
 });
 
 async function getPhoto(req, res, next) {
