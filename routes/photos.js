@@ -3,8 +3,7 @@ const router = express.Router();
 const Photo = require('../models/photos');
 
 router.use('/', function (req, res, next) {
-    let acceptType = req.get('Accept');
-    if(acceptType == "application/json") {
+    if(req.get('Accept') == "application/json") {
         next();
     } else {
         res.status(400).send();
@@ -61,7 +60,7 @@ router.post('/photos', async (req, res) => {
         const newPhoto = await photo.save();
         res.status(201).json(newPhoto);
     } catch (err) {
-        res.status(400).json({ message: err.message });
+        res.status(400).json({ message: err.message }).send();
     }
 });
 //Updating one
@@ -80,22 +79,40 @@ router.patch('/photos/:id', getPhoto, async (req, res) => {
         const updatedPhoto = await res.photo.save();
         res.json(updatedPhoto);
     } catch (err) {
-        res.status(400).json({ message: err.message });
+        res.status(400).json({ message: err.message }).send();
+    }
+});
+router.put('/photos/:id', getPhoto, async (req, res) => {
+    if (req.body.title != null) {
+        res.photo.title = req.body.title;
+    }
+    if (req.body.image != null) {
+        res.photo.image = req.body.image;
+    }
+    if (req.body.category != null) {
+        res.photo.category = req.body.category;
+    }
+
+    try {
+        const updatedPhoto = await res.photo.save();
+        res.json(updatedPhoto);
+    } catch (err) {
+        res.status(400).json({ message: err.message }).send();
     }
 });
 //Deleting one
 router.delete('/photos/:id', getPhoto, async (req, res) => {
     try {
         await res.photo.remove();
-        res.json({ message: "Deleted photo" });
+        res.status(204).json({ message: "Deleted photo" });
     } catch (err) {
-        res.status(400).json({ message: err.message });
+        res.status(400).json({ message: err.message }).send();
     }
 });
 
 //Gettubg options
 router.options('/photos/:id', (req, res) => {
-    res.header("Allow", "GET,POST,PATCH,DELETE,OPTIONS").send();
+    res.header("Allow", "GET,PUT,PATCH,DELETE,OPTIONS").send();
 });
 
 async function getPhoto(req, res, next) {

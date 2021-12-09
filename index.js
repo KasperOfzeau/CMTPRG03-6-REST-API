@@ -13,6 +13,10 @@ db.on('open', () => console.log("Connected to database"));
 
 app.use(express.json());
 
+app.use(express.urlencoded({
+    extended: true
+}));
+
 const photosRouter = require('./routes/photos');
 app.use('/api', photosRouter);
 
