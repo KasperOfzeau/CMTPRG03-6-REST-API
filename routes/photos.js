@@ -3,11 +3,23 @@ const router = express.Router();
 const Photo = require('../models/photos');
 
 router.use('/', function(req, res, next) {
-  if (req.get('Accept') == "application/json") {
+  if (req.method == 'OPTIONS' || req.get('Accept') == "application/json") {
     next();
   } else {
     res.status(400).send();
   }
+});
+
+// Add headers before the routes are defined
+router.use('/', function (req, res, next) {
+    // Website(s) to allow to connect
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    // Request methods to allow
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+    // Request headers to allow
+    res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    // Pass to next layer
+    next();
 });
 
 //Getting all
@@ -50,8 +62,9 @@ router.get('/photos', async (req, res) => {
 });
 //Gettubg options
 router.options('/photos', (req, res) => {
-  res.header("Allow", "GET,POST,OPTIONS");
+  res.header("Allow", "GET,POST,OPTIONS")
   res.header("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+  res.send();
 });
 //Getting one
 router.get('/photos/:id', getPhoto, (req, res) => {
@@ -80,7 +93,7 @@ router.post('/photos', async (req, res) => {
   } catch (err) {
     res.status(400).json({
       message: err.message
-    }).send();
+    });
   }
 });
 //Updating one
@@ -101,7 +114,7 @@ router.patch('/photos/:id', getPhoto, async (req, res) => {
   } catch (err) {
     res.status(400).json({
       message: err.message
-    }).send();
+    });
   }
 });
 router.put('/photos/:id', getPhoto, async (req, res) => {
@@ -121,7 +134,7 @@ router.put('/photos/:id', getPhoto, async (req, res) => {
   } catch (err) {
     res.status(400).json({
       message: err.message
-    }).send();
+    });
   }
 });
 //Deleting one
@@ -134,14 +147,15 @@ router.delete('/photos/:id', getPhoto, async (req, res) => {
   } catch (err) {
     res.status(400).json({
       message: err.message
-    }).send();
+    });
   }
 });
 
 //Gettubg options
 router.options('/photos/:id', (req, res) => {
-  res.header("Allow", "GET,POST,PATCH,DELETE,OPTIONS");
-  res.header("Access-Control-Allow-Methods", "GET,POST,PATCH,DELETE,OPTIONS");
+  res.header("Allow", "GET,PATCH,PUT,DELETE,OPTIONS")
+  res.header("Access-Control-Allow-Methods", "GET,PATCH,PUT,DELETE,OPTIONS");
+  res.send();
 });
 
 async function getPhoto(req, res, next) {
