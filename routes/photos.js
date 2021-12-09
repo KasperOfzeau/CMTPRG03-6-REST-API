@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Photo = require('../models/photos');
 
+//Check if accept header is correct except for options method
 router.use('/', function(req, res, next) {
   if (req.method == 'OPTIONS' || req.get('Accept') == "application/json") {
     next();
@@ -10,7 +11,7 @@ router.use('/', function(req, res, next) {
   }
 });
 
-// Add headers before the routes are defined
+//Add headers before the routes are defined
 router.use('/', function (req, res, next) {
     // Website(s) to allow to connect
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -24,7 +25,6 @@ router.use('/', function (req, res, next) {
 
 //Getting all
 router.get('/photos', async (req, res) => {
-
   try {
     const photos = await Photo.find();
     let photosCollection = {
@@ -117,6 +117,7 @@ router.patch('/photos/:id', getPhoto, async (req, res) => {
     });
   }
 });
+//Update everything
 router.put('/photos/:id', getPhoto, async (req, res) => {
   if (req.body.title != null) {
     res.photo.title = req.body.title;
@@ -150,14 +151,13 @@ router.delete('/photos/:id', getPhoto, async (req, res) => {
     });
   }
 });
-
 //Gettubg options
 router.options('/photos/:id', (req, res) => {
   res.header("Allow", "GET,PATCH,PUT,DELETE,OPTIONS")
   res.header("Access-Control-Allow-Methods", "GET,PATCH,PUT,DELETE,OPTIONS");
   res.send();
 });
-
+//Get photo from database
 async function getPhoto(req, res, next) {
   let photo;
   try {
@@ -172,7 +172,6 @@ async function getPhoto(req, res, next) {
       message: err.message
     });
   }
-
   res.photo = photo;
   next();
 }
