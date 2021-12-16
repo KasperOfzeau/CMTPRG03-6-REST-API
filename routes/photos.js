@@ -48,6 +48,7 @@ router.get('/photos', async (req, res) => {
                 console.log("No start and limit are given.");
             }
 
+            // Calculate number of pages
             let totalItems = photos.length;
             let totalPages = Math.ceil(photos.length / limit);
 
@@ -59,12 +60,14 @@ router.get('/photos', async (req, res) => {
             let currentItems;
             let currentPage;
 
+            // If there is one page
             if (totalPages == 1) {
                 firstPage = lastPage = prevPage = nextPage = currentPage = 1;
                 currentItems = photos.length;
             }
 
             else {
+                // Calculate items
                 currentPage = Math.ceil(start / limit);
                 if (currentPage == totalPages) {
                      currentItems = totalItems - ((totalPages - 1) * limit); 
@@ -75,6 +78,7 @@ router.get('/photos', async (req, res) => {
                 firstPage = 1;
                 lastPage = (totalPages - 1) * limit + 1;
 
+                // Calculate prev and next page
                 if (currentPage == 1) { 
                     prevPage = 1; 
                 } else { 
